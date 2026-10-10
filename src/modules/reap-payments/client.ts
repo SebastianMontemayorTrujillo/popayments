@@ -4,8 +4,12 @@ import type { Money } from '@/shared/money';
 
 const money = z.strictObject({ amount: z.number().finite().nonnegative(), currency: z.enum(['MXN', 'USD']) });
 const action = z.strictObject({ type: z.literal('REDIRECT'), url: z.url().refine((value) => {
-  const host = new URL(value).hostname;
-  return value.startsWith('https://') && (host === 'reap.global' || host.endsWith('.reap.global'));
+  let url: URL;
+  try { url = new URL(value); } catch { return false; }
+  if (url.protocol !== 'https:' || url.username || url.password) return false;
+  const configuredOrigins = (process.env.REAP_REDIRECT_ORIGINS ?? '').split(',').map((origin) => origin.trim()).filter(Boolean);
+  const reapHost = !url.port && (url.hostname === 'reap.global' || url.hostname.endsWith('.reap.global'));
+  return reapHost || configuredOrigins.includes(url.origin);
 }), expiresAt: z.string().optional() }).nullable();
 const checkout = z.object({
   id: z.string().min(1), status: z.enum(['REQUIRES_ACTION', 'PROCESSING', 'COMPLETED', 'FAILED', 'EXPIRED']),
@@ -25,6 +29,15 @@ export type ReapCheckout = z.infer<typeof checkout>;
 export type ReapEnrollment = z.infer<typeof enrollment>;
 export type ReapCard = z.infer<typeof card>;
 export type ReapQuote = z.infer<typeof quote>;
+
+function parseActionResponse<T>(schema: z.ZodType<T>, payload: unknown): T {
+  const result = schema.safeParse(payload);
+  if (result.success) return result.data;
+  if (result.error.issues.some((issue) => issue.path[0] === 'nextAction' && issue.path[1] === 'url')) {
+    throw new AppError(502, 'REAP_REDIRECT_NOT_ALLOWED', 'El enlace de Reap no usa un dominio HTTPS habilitado para este sandbox');
+  }
+  throw new AppError(502, 'INVALID_REAP_RESPONSE', 'Reap devolvió una respuesta inválida');
+}
 
 export function reapMoney(value: z.infer<typeof money>): Money {
   const written = String(value.amount);
@@ -71,14 +84,14 @@ export class ReapClient {
 
   async createExternalEnrollment(input: { ownerId: string; email: string; returnUrl: string; idempotencyKey: string }): Promise<ReapEnrollment> {
     if (!input.returnUrl.startsWith('https://')) throw new AppError(422, 'HTTPS_REQUIRED', 'El retorno de Reap requiere HTTPS');
-    return enrollment.parse(await this.request('/agentic/enrollments', 'POST', {
+    return parseActionResponse(enrollment, await this.request('/agentic/enrollments', 'POST', {
       source: 'EXTERNAL', owner: { type: 'CLIENT_REFERENCE', id: input.ownerId, email: input.email },
       presentation: { type: 'REDIRECT', returnUrl: input.returnUrl },
     }, input.idempotencyKey));
   }
 
   async getEnrollment(id: string): Promise<ReapEnrollment> {
-    return enrollment.parse(await this.request(`/agentic/enrollments/${encodeURIComponent(id)}`, 'GET'));
+    return parseActionResponse(enrollment, await this.request(`/agentic/enrollments/${encodeURIComponent(id)}`, 'GET'));
   }
 
   async searchActeck(query: string) {
@@ -106,11 +119,11 @@ export class ReapClient {
 
   async createCheckout(input: { quoteId: string; enrollmentId: string; returnUrl: string; idempotencyKey: string }): Promise<ReapCheckout> {
     if (!input.returnUrl.startsWith('https://')) throw new AppError(422, 'HTTPS_REQUIRED', 'El retorno de Reap requiere HTTPS');
-    return checkout.parse(await this.request('/agentic/checkouts', 'POST', { quoteId: input.quoteId, enrollmentId: input.enrollmentId,
+    return parseActionResponse(checkout, await this.request('/agentic/checkouts', 'POST', { quoteId: input.quoteId, enrollmentId: input.enrollmentId,
       presentation: { type: 'REDIRECT', returnUrl: input.returnUrl } }, input.idempotencyKey));
   }
 
   async getCheckout(id: string): Promise<ReapCheckout> {
-    return checkout.parse(await this.request(`/agentic/checkouts/${encodeURIComponent(id)}`, 'GET'));
+    return parseActionResponse(checkout, await this.request(`/agentic/checkouts/${encodeURIComponent(id)}`, 'GET'));
   }
 }

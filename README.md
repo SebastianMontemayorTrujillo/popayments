@@ -55,6 +55,8 @@ Configura en `.env` los campos `REAP_DEFAULT_CARD_LAST4`, `REAP_DEFAULT_CARD_EXP
 
 Para activarla, configura `REAP_OWNER_ID`, `REAP_OWNER_EMAIL` y una `APP_BASE_URL` pública HTTPS, inicia el registro desde la lista de casos y complétalo en Reap. Solo un enrollment `ACTIVE` del propietario, con los últimos cuatro dígitos y vencimiento coincidentes, puede autorizar nuevas PO. `GET /api/v1/payment-method` devuelve esta selección a usuarios autenticados. Si no hay preferencia configurada, se selecciona una tarjeta activa con metadatos confirmados por Reap.
 
+Si Reap aloja el registro en un dominio adicional, configura `REAP_REDIRECT_ORIGINS` con los orígenes HTTPS exactos confirmados por la API, separados por comas y sin rutas ni barra final. El sandbox del equipo devolvió `https://sandbox.collect.prava.space`; se configuró localmente ese origen. No se admiten comodines, subdominios adicionales ni URLs con usuario/contraseña. Un enlace rechazado devuelve `REAP_REDIRECT_NOT_ALLOWED` sin revelar el token. Tras cambiar código y configuración, ejecuta `docker compose up --build -d --wait`, recarga Casos y usa «Reintentar misma solicitud» si el registro quedó `UNKNOWN`: conserva la clave de idempotencia original.
+
 ### Validación local
 
 ```bash
