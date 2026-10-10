@@ -32,6 +32,13 @@ services:
       db:
         condition: service_healthy
 
+  keys:
+    <<: *app
+    command: ["npm", "run", "ap2:init-keys"]
+    restart: "no"
+    volumes:
+      - ap2_keys:/app/.local/ap2-keys
+
   web:
     <<: *app
     ports:
@@ -39,6 +46,10 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      keys:
+        condition: service_completed_successfully
+    volumes:
+      - ap2_keys:/app/.local/ap2-keys
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
@@ -51,6 +62,11 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      keys:
+        condition: service_completed_successfully
+    volumes:
+      - ap2_keys:/app/.local/ap2-keys
 
 volumes:
   postgres_data:
+  ap2_keys:

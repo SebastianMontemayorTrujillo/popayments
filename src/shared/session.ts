@@ -67,6 +67,10 @@ export function sessionCookie(token: string, expiresAt: Date) {
 export async function authenticated(request: NextRequest): Promise<{ actorId: string; email: string; token: string }> {
   const token = request.cookies.get(cookieName)?.value;
   if (!token) throw new AppError(401, 'UNAUTHENTICATED', 'Inicia sesión');
+  return authenticatedToken(token);
+}
+
+export async function authenticatedToken(token: string): Promise<{ actorId: string; email: string; token: string }> {
   const found = await database().query<{ id: string; email: string }>(
     'SELECT u.id, u.email FROM sessions s JOIN demo_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now()', [tokenHash(token)]);
   if (!found.rows[0]) throw new AppError(401, 'UNAUTHENTICATED', 'La sesión venció');

@@ -1,6 +1,6 @@
 # Tareas de implementación: PoPayments
 
-Estado: lista propuesta para revisión junto con [plan.md](plan.md). Specs aprobadas el 2026-10-09. Todas las tareas siguen pendientes; no hay código implementado. IDs estables T01–T45.
+Estado: implementación en curso. Specs aprobadas el 2026-10-09. Los módulos principales tienen código y pruebas locales; esta lista aún requiere conciliar criterios y evidencia por tarea. La validación de Reap sandbox y el arranque Docker siguen pendientes. IDs estables T01–T45.
 
 ## Reglas de ejecución
 

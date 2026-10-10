@@ -15,7 +15,8 @@
     "test:sandbox": "vitest --config vitest.sandbox.config.ts",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed:demo": "tsx scripts/seed-demo.ts",
-    "password:hash": "tsx scripts/hash-password.ts"
+    "password:hash": "tsx scripts/hash-password.ts",
+    "ap2:init-keys": "tsx scripts/init-ap2-keys.ts"
   },
   "dependencies": {
     "@sd-jwt/core": "0.22.0",

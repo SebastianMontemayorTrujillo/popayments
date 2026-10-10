@@ -45,7 +45,13 @@ export async function reconcileCase(caseId: string): Promise<ReconciliationResul
       `SELECT * FROM reconciliations WHERE po_id=$1 AND po_version=$2 AND invoice_id=$3 AND invoice_version=$4 AND rules_version='header-v1'`,
       [current.po_id, current.po_version, current.invoice_id, current.invoice_version])).rows[0];
     if (matched.case_id !== caseId) throw new AppError(409, 'DOCUMENTS_ALREADY_LINKED', 'La pareja pertenece a otro caso');
-    if (inserted.rows[0]) await client.query('UPDATE cases SET status=$2,version=version+1,updated_at=now() WHERE id=$1', [caseId, result.status === 'MATCHED' ? 'WAITING_PO_AUTH' : 'REVIEW_REQUIRED']);
+    if (inserted.rows[0]) {
+      const active = result.status === 'MATCHED' && (await client.query(`SELECT 1 FROM purchase_authorizations
+        WHERE case_id=$1 AND state='ACTIVE' AND expires_at>now() AND po_ref->>'documentId'=$2
+          AND (po_ref->>'version')::integer=$3 LIMIT 1`, [caseId, current.po_id, current.po_version])).rows[0];
+      await client.query('UPDATE cases SET status=$2,version=version+1,updated_at=now() WHERE id=$1',
+        [caseId, result.status === 'MISMATCHED' ? 'REVIEW_REQUIRED' : active ? 'QUOTE_REVIEW_REQUIRED' : 'WAITING_PO_AUTH']);
+    }
     return matched;
   });
   return present(row);
@@ -58,6 +64,9 @@ export async function getReconciliation(id: string): Promise<ReconciliationResul
 }
 
 export async function latestReconciliationForCase(caseId: string): Promise<ReconciliationResult | null> {
-  const found = await database().query<Row>('SELECT * FROM reconciliations WHERE case_id=$1 ORDER BY created_at DESC LIMIT 1', [caseId]);
+  const found = await database().query<Row>(`SELECT r.* FROM reconciliations r JOIN cases c ON c.id=r.case_id
+    WHERE r.case_id=$1 AND r.po_id=c.po_id AND r.po_version=c.po_version
+      AND r.invoice_id=c.invoice_id AND r.invoice_version=c.invoice_version
+    ORDER BY r.created_at DESC LIMIT 1`, [caseId]);
   return found.rows[0] ? present(found.rows[0]) : null;
 }

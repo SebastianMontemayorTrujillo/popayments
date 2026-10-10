@@ -7,7 +7,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --include=dev
 
 COPY . .
-RUN npm run build && chown -R node:node /app
+RUN npm run build && mkdir -p /app/.local/ap2-keys && chown -R node:node /app
 
 USER node
 EXPOSE 3000

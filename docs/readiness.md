@@ -16,6 +16,6 @@ Estado al iniciar la implementación: 2026-10-09. Este diagnóstico distingue lo
 | Persistencia PostgreSQL y worker | Definidos en Compose | Ejecutar y verificar en el host Docker del sandbox. |
 | Vencimiento de llave Reap | Conocido | 2026-10-11 00:00 Ciudad de México; renovar si se ejecuta después. |
 
-El entorno de desarrollo compartido no trae Docker; se preparó un PostgreSQL temporal de usuario para probar migraciones durante la implementación. Esto no sustituye el arranque de Compose en el sandbox de entrega. Las consultas públicas de documentación no verifican permisos del equipo ni generan pagos.
+Docker Engine y Compose están instalados. El usuario `seb` figura en el grupo `docker`, pero esta sesión se abrió antes del cambio de membresía y no puede acceder al socket. Se preparó un PostgreSQL temporal de usuario para probar migraciones; Compose pasó la validación estática. Tras abrir una sesión que herede el grupo, falta ejecutar `docker compose up --build -d` y comprobar los servicios. Las consultas públicas de documentación no verifican permisos del equipo ni generan pagos.
 
 Fuentes: [setup Agentic](https://docs.reap.global/agentic-payments/setup), [enrollment](https://docs.reap.global/api-reference/agentic/create-enrollment), [cotización](https://docs.reap.global/api-reference/agentic/create-quote), [hackathon](https://aibuilders.mx/reap).

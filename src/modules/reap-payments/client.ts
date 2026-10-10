@@ -14,6 +14,10 @@ const checkout = z.object({
 });
 const enrollment = z.object({ id: z.string().min(1), status: z.string(), nextAction: action.optional(), owner: z.unknown().optional(), paymentMethod: z.unknown().optional() });
 const quote = z.object({ id: z.string().min(1), expiresAt: z.iso.datetime({ offset: true }), amountBreakdown: z.object({ finalAmount: money }), shippingOptions: z.array(z.unknown()) });
+const productSearch = z.object({ products: z.array(z.object({ id: z.string(), name: z.string(), merchant: z.object({ name: z.string() }),
+  previewVariant: z.object({ id: z.string(), name: z.string().optional(), price: money, available: z.boolean().optional() }).optional() })) });
+const productDetails = z.object({ products: z.array(z.object({ id: z.string(), name: z.string(), merchant: z.object({ name: z.string() }),
+  defaultVariant: z.object({ id: z.string(), name: z.string().optional(), price: money, available: z.boolean().optional() }).optional() })) });
 
 export type ReapCheckout = z.infer<typeof checkout>;
 export type ReapEnrollment = z.infer<typeof enrollment>;
@@ -74,8 +78,16 @@ export class ReapClient {
     return enrollment.parse(await this.request(`/agentic/enrollments/${encodeURIComponent(id)}`, 'GET'));
   }
 
-  async searchActeck(query: string): Promise<unknown> {
-    return this.request('/agentic/products/search', 'POST', { query, merchantPreference: { mode: 'ONLY', merchantName: 'Acteck' } });
+  async searchActeck(query: string) {
+    const found = productSearch.parse(await this.request('/agentic/products/search', 'POST', { query, merchantPreference: { mode: 'ONLY', merchantName: 'Acteck' } }));
+    return found.products.filter((item) => item.merchant.name.trim().toLowerCase() === 'acteck');
+  }
+
+  async getActeckProduct(productId: string) {
+    const found = productDetails.parse(await this.request('/agentic/products/details', 'POST', { productIds: [productId] }));
+    const product = found.products.find((item) => item.id === productId && item.merchant.name.trim().toLowerCase() === 'acteck');
+    if (!product) throw new AppError(422, 'ACTECK_PRODUCT_NOT_FOUND', 'El producto no pertenece a Acteck');
+    return product;
   }
 
   async createQuote(input: { email: string; items: { variantId: string; quantity: number }[]; shippingAddress: Record<string, string>; idempotencyKey: string }): Promise<ReapQuote> {
