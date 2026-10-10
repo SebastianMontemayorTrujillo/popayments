@@ -49,6 +49,14 @@ El servicio `keys` crea cuatro claves ES256 de prueba en el volumen `ap2_keys` a
 
 ## Comprobaciones
 
+### Tarjeta predeterminada
+
+Configura en `.env` los campos `REAP_DEFAULT_CARD_LAST4`, `REAP_DEFAULT_CARD_EXPIRY_MONTH` y `REAP_DEFAULT_CARD_EXPIRY_YEAR` (año de cuatro dígitos), además de la llave `REAP_API_KEY`. Reinicia web y worker con `docker compose up -d`. La tarjeta se muestra enmascarada y pendiente de activación. No guardes PAN, CVV ni OTP en este archivo: se introducen únicamente en el formulario alojado por Reap.
+
+Para activarla, configura `REAP_OWNER_ID`, `REAP_OWNER_EMAIL` y una `APP_BASE_URL` pública HTTPS, inicia el registro desde la lista de casos y complétalo en Reap. Solo un enrollment `ACTIVE` del propietario, con los últimos cuatro dígitos y vencimiento coincidentes, puede autorizar nuevas PO. `GET /api/v1/payment-method` devuelve esta selección a usuarios autenticados. Si no hay preferencia configurada, se selecciona una tarjeta activa con metadatos confirmados por Reap.
+
+### Validación local
+
 ```bash
 npm ci
 npm run typecheck
@@ -59,7 +67,7 @@ npm run test -- --run
 
 Para comprobar el recorrido web con un usuario ya sembrado, inicia `npm run start` y configura `E2E_EMAIL`, `E2E_PASSWORD` y, si usas un Chromium del sistema, `PLAYWRIGHT_CHROMIUM_PATH` antes de `npm run test:e2e`. La comprobación de un enrollment Reap existente es opt-in: `RUN_SANDBOX_TESTS=1 REAP_TEST_ENROLLMENT_ID=... npm run test:sandbox`, con la llave en el entorno. Esa prueba consulta un recurso; no crea enrollment ni checkout.
 
-Las pruebas de integración PostgreSQL se ejecutan si se configura `DATABASE_URL`; sin ella Vitest las omite. Se comprobaron el build de producción y 24 pruebas con PostgreSQL local. El sandbox Docker también se construyó y arrancó: web y base saludables, worker activo, recorrido en Chromium aprobado y persistencia verificada tras recrear los contenedores. Consulta la [evidencia de Docker](docs/verification/docker.md). La integración real con Reap sigue pendiente de configuración externa.
+Las pruebas de integración PostgreSQL se ejecutan si se configura `DATABASE_URL`; sin ella Vitest las omite. Se comprobaron el build de producción y 27 pruebas con PostgreSQL local. El sandbox Docker también se construyó y arrancó: web y base saludables, worker activo, recorrido en Chromium aprobado y persistencia verificada tras recrear los contenedores. Consulta la [evidencia de Docker](docs/verification/docker.md). La integración real con Reap sigue pendiente de configuración externa.
 
 ## Especificación
 

@@ -10,6 +10,7 @@ import { getCase } from '@/modules/payment-workflow/cases';
 import { getEnrollment, listEnrollments } from '@/modules/reap-payments/enrollments';
 import { getPurchasePlan } from '@/modules/reap-payments/plans';
 import { enqueueAgentRun } from '@/modules/payment-workflow/jobs';
+import { getDefaultCard } from '@/modules/reap-payments/default-card';
 
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
@@ -23,6 +24,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       }
       const enrollment = await getEnrollment(body.enrollmentId, true);
       if (!enrollment.providerId || enrollment.status !== 'ACTIVE') throw new AppError(409, 'ENROLLMENT_NOT_ACTIVE', 'Completa el registro de la tarjeta en Reap');
+      const defaultCard = await getDefaultCard();
+      if (!defaultCard || defaultCard.enrollmentId !== enrollment.id) throw new AppError(409, 'DEFAULT_CARD_NOT_ACTIVE', 'Completa el registro de la tarjeta predeterminada');
       const approved = await approvePurchase({ caseId: id, expectedCaseVersion: body.expectedCaseVersion, po: current.po,
         plan: { id: plan.id, po: plan.po, hash: plan.hash, merchantId: plan.merchantId },
         enrollment: { id: enrollment.providerId, status: 'ACTIVE' }, actorId: user.actorId });

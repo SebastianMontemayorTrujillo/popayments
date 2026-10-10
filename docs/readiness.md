@@ -8,6 +8,7 @@ Estado al iniciar la implementación: 2026-10-09. Este diagnóstico distingue lo
 | Versión Agentic | Propuesta | La referencia pública enumera `2025-02-14`; validar con la llave del equipo. |
 | Enrollment EXTERNAL | Documentado | La API pública lo ofrece y describe retorno alojado. Validar que Agentic esté habilitado para el equipo. |
 | Tarjeta de sandbox | Disponible para el equipo | Se introduce solo en la página alojada por Reap. No está copiada en este repositorio. |
+| Tarjeta predeterminada y llave | Configuradas localmente | `.env` excluido de Git contiene la llave y únicamente los últimos cuatro dígitos/vencimiento de la tarjeta. La selección permanece pendiente de enrollment; no se han verificado permisos reales con Reap. |
 | Merchant Acteck y variantes | Desconocido | Búsqueda/detalle de productos del Agentic del equipo; no inferir soporte por el sitio Acteck. |
 | Moneda y envío para Acteck | Desconocido | Resolver variante y quote antes de autorizar una PO. |
 | Owner y correo de enrollment | Pendiente de configuración | `REAP_OWNER_ID` y `REAP_OWNER_EMAIL` del equipo. |

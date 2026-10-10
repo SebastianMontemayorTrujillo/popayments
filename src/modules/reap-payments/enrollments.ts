@@ -2,16 +2,17 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { database } from '@/shared/database';
 import { canonicalHash } from '@/shared/canonical-json';
 import { AppError } from '@/shared/errors';
-import { ReapClient } from './client';
+import { ReapClient, type ReapCard } from './client';
 
 interface EnrollmentRow {
   id: string; owner_id: string; owner_email: string; provider_id: string | null; status: string;
   next_action_url: string | null; return_state_hash: string; return_url: string;
   idempotency_key: string; request_hash: string; created_at: Date; updated_at: Date;
+  payment_method: ReapCard | null;
 }
-export interface EnrollmentView { id: string; providerId: string | null; status: string; nextActionUrl: string | null; createdAt: string }
+export interface EnrollmentView { id: string; providerId: string | null; status: string; nextActionUrl: string | null; createdAt: string; paymentMethod: ReapCard | null }
 function view(row: EnrollmentRow): EnrollmentView {
-  return { id: row.id, providerId: row.provider_id, status: row.status, nextActionUrl: row.next_action_url, createdAt: row.created_at.toISOString() };
+  return { id: row.id, providerId: row.provider_id, status: row.status, nextActionUrl: row.next_action_url, createdAt: row.created_at.toISOString(), paymentMethod: row.payment_method };
 }
 function config() {
   const ownerId = process.env.REAP_OWNER_ID?.trim();
@@ -51,8 +52,8 @@ export async function retryEnrollment(id: string, client = new ReapClient()): Pr
   if (row.provider_id) return view(row);
   if (Date.now() - row.created_at.getTime() > 23 * 60 * 60 * 1_000) throw new AppError(409, 'REAP_RESULT_UNKNOWN', 'Es necesario resolver la solicitud incierta con Reap antes de repetirla');
   const result = await client.createExternalEnrollment({ ownerId: row.owner_id, email: row.owner_email, returnUrl: row.return_url, idempotencyKey: row.idempotency_key });
-  const updated = await database().query<EnrollmentRow>(`UPDATE reap_enrollments SET provider_id=$2,status=$3,next_action_url=$4,updated_at=now()
-    WHERE id=$1 RETURNING *`, [id, result.id, result.status, result.nextAction?.url ?? null]);
+  const updated = await database().query<EnrollmentRow>(`UPDATE reap_enrollments SET provider_id=$2,status=$3,next_action_url=$4,payment_method=$5,updated_at=now()
+    WHERE id=$1 RETURNING *`, [id, result.id, result.status, result.nextAction?.url ?? null, result.paymentMethod ?? null]);
   return view(updated.rows[0]);
 }
 
@@ -62,8 +63,8 @@ export async function getEnrollment(id: string, refresh = false, client = new Re
   if (!row) throw new AppError(404, 'ENROLLMENT_NOT_FOUND', 'Enrollment no encontrado');
   if (!refresh || !row.provider_id) return view(row);
   const result = await client.getEnrollment(row.provider_id);
-  const updated = await database().query<EnrollmentRow>(`UPDATE reap_enrollments SET status=$2,next_action_url=$3,updated_at=now() WHERE id=$1 RETURNING *`,
-    [id, result.status, result.nextAction?.url ?? null]);
+  const updated = await database().query<EnrollmentRow>(`UPDATE reap_enrollments SET status=$2,next_action_url=$3,payment_method=$4,updated_at=now() WHERE id=$1 RETURNING *`,
+    [id, result.status, result.nextAction?.url ?? null, result.paymentMethod ?? null]);
   return view(updated.rows[0]);
 }
 

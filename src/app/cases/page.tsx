@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { readApi, sendApi } from '../components/api';
+import type { DefaultCard } from '@/modules/reap-payments/default-card';
 
 interface CaseItem { id: string; title: string; status: string; createdAt: string }
 interface CasesReply { items: CaseItem[]; pagination: { page: number; pageSize: number; totalItems: number } }
@@ -14,11 +15,16 @@ export default function CasesPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+  const [defaultCard, setDefaultCard] = useState<DefaultCard | null>(null);
 
   useEffect(() => {
     readApi<CasesReply>('/api/v1/cases').then((reply) => setCases(reply.items)).catch((cause) => setError(cause.message));
     readApi<Enrollment[]>('/api/v1/enrollments').then((rows) => setEnrollment(rows[0] ?? null)).catch((cause) => setError(cause.message));
   }, []);
+
+  useEffect(() => {
+    readApi<DefaultCard | null>('/api/v1/payment-method').then(setDefaultCard).catch((cause) => setError(cause.message));
+  }, [enrollment]);
 
   async function enroll() {
     setBusy(true); setError('');
@@ -47,6 +53,8 @@ export default function CasesPage() {
   return <main className="content">
     <div className="page-heading"><div><p className="eyebrow">Cuentas por Pagar</p><h1>Casos de compra</h1><p>Cada caso conserva la PO, factura, autorización y resultado del pago.</p></div><span className="badge">Sandbox</span></div>
     <section className="panel" aria-labelledby="instrument"><p className="eyebrow">Instrumento de pago</p><h2 id="instrument">Tarjeta de prueba en Reap</h2>
+      {defaultCard && <div aria-live="polite"><p>Tarjeta predeterminada: <strong>•••• {defaultCard.last4}</strong> · Vencimiento {String(defaultCard.expiryMonth).padStart(2, '0')}/{String(defaultCard.expiryYear).slice(-2)}</p>
+        <p>{defaultCard.status === 'ACTIVE' ? 'Activa en Reap.' : 'Pendiente de activación. Completa el registro en Reap para usar esta tarjeta.'}</p></div>}
       {enrollment ? <><p>Estado: <strong>{enrollment.status.replaceAll('_', ' ')}</strong></p>
         {enrollment.nextActionUrl && <p><a href={enrollment.nextActionUrl}>Completar registro alojado en Reap</a></p>}
         <button type="button" onClick={() => updateEnrollment(false)} disabled={busy || !enrollment.providerId}>Consultar estado</button>

@@ -12,7 +12,9 @@ const checkout = z.object({
   quoteId: z.string().min(1), enrollmentId: z.string().nullable(), nextAction: action,
   orderId: z.string().nullable().optional(), finalAmount: money.optional(), amount: money.optional(),
 });
-const enrollment = z.object({ id: z.string().min(1), status: z.string(), nextAction: action.optional(), owner: z.unknown().optional(), paymentMethod: z.unknown().optional() });
+const card = z.object({ type: z.literal('CARD'), network: z.string().min(1).max(100), last4: z.string().regex(/^\d{4}$/),
+  expiryMonth: z.number().int().min(1).max(12), expiryYear: z.number().int().min(2000).max(9999) });
+const enrollment = z.object({ id: z.string().min(1), status: z.string(), nextAction: action.optional(), owner: z.unknown().optional(), paymentMethod: card.nullable().optional() });
 const quote = z.object({ id: z.string().min(1), expiresAt: z.iso.datetime({ offset: true }), amountBreakdown: z.object({ finalAmount: money }), shippingOptions: z.array(z.unknown()) });
 const productSearch = z.object({ products: z.array(z.object({ id: z.string(), name: z.string(), merchant: z.object({ name: z.string() }),
   previewVariant: z.object({ id: z.string(), name: z.string().optional(), price: money, available: z.boolean().optional() }).optional() })) });
@@ -21,6 +23,7 @@ const productDetails = z.object({ products: z.array(z.object({ id: z.string(), n
 
 export type ReapCheckout = z.infer<typeof checkout>;
 export type ReapEnrollment = z.infer<typeof enrollment>;
+export type ReapCard = z.infer<typeof card>;
 export type ReapQuote = z.infer<typeof quote>;
 
 export function reapMoney(value: z.infer<typeof money>): Money {

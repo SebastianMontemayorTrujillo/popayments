@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { readApi, sendApi } from '../../components/api';
 import { formatMajor } from '@/shared/money';
+import type { DefaultCard } from '@/modules/reap-payments/default-card';
 
 interface Ref { documentId: string; version: number; sourceHash: string; canonicalHash: string }
 interface Difference { field: string; poValue: string; invoiceValue: string }
@@ -21,7 +22,6 @@ interface CaseDetail { id: string; title: string; version: number; status: strin
 interface HistoryEvent { at: string; kind: string; details: unknown }
 interface PoData { data: { items: { sku: string; description: string; quantity: number }[]; total: { currency: string; minorUnits: string } } }
 interface Product { id: string; name: string; previewVariant?: { id: string; price: { currency: string; amount: number } } }
-interface Enrollment { id: string; status: string; providerId: string | null }
 const fieldLabels: Record<string, string> = { PO_REFERENCE: 'Referencia de PO', SUPPLIER: 'Proveedor', CURRENCY: 'Moneda', TOTAL: 'Total en centavos' };
 
 export default function CasePage() {
@@ -32,7 +32,7 @@ export default function CasePage() {
   const [exceptionReason, setExceptionReason] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [poData, setPoData] = useState<PoData | null>(null);
-  const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+  const [defaultCard, setDefaultCard] = useState<DefaultCard | null>(null);
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [chosen, setChosen] = useState<Record<string, string>>({});
@@ -52,7 +52,7 @@ export default function CasePage() {
   useEffect(() => {
     if (!item?.po) return;
     readApi<PoData>(`/api/v1/documents/${item.po.documentId}/versions/${item.po.version}`).then(setPoData).catch((cause) => setError(cause.message));
-    readApi<Enrollment[]>('/api/v1/enrollments').then((rows) => setEnrollment(rows.find((row) => row.status === 'ACTIVE') ?? null)).catch((cause) => setError(cause.message));
+    readApi<DefaultCard | null>('/api/v1/payment-method').then(setDefaultCard).catch((cause) => setError(cause.message));
   }, [item?.po?.documentId, item?.po?.version]);
 
   async function upload(event: FormEvent<HTMLFormElement>, role: 'PO' | 'INVOICE') {
@@ -114,10 +114,10 @@ export default function CasePage() {
   }
 
   async function approvePo() {
-    if (!item?.purchasePlan || !enrollment) return;
+    if (!item?.purchasePlan || defaultCard?.status !== 'ACTIVE' || !defaultCard.enrollmentId) return;
     setBusy(true); setError('');
     try { await sendApi(`/api/v1/cases/${id}/approve-po`, 'POST', { expectedCaseVersion: item.version,
-      planId: item.purchasePlan.id, enrollmentId: enrollment.id }); refresh(); }
+      planId: item.purchasePlan.id, enrollmentId: defaultCard.enrollmentId }); refresh(); }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'No se pudo autorizar la PO'); }
     finally { setBusy(false); }
   }
@@ -202,8 +202,8 @@ export default function CasePage() {
               <option value="">Selecciona un producto</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name}</option>)}</select></div>)}
           {products.length > 0 && <button type="button" onClick={createPlan} disabled={busy || poData.data.items.some((part) => !chosen[part.sku])}>Guardar plan</button>}
         </>}
-        {item.purchasePlan && !item.authorization && <><p>Instrumento: {enrollment ? 'Activo en Reap' : 'Pendiente. Completa el registro en la lista de casos.'}</p>
-          <button type="button" onClick={approvePo} disabled={busy || !enrollment}>Autorizar PO</button></>}
+        {item.purchasePlan && !item.authorization && <><p>Tarjeta predeterminada: {defaultCard ? `•••• ${defaultCard.last4}` : 'Sin configurar'}. {defaultCard?.status === 'ACTIVE' ? 'Activa en Reap.' : 'Pendiente. Completa el registro en la lista de casos.'}</p>
+          <button type="button" onClick={approvePo} disabled={busy || defaultCard?.status !== 'ACTIVE'}>Autorizar PO</button></>}
         {item.authorization && <p>PO autorizada hasta {new Date(item.authorization.expiresAt).toLocaleString('es-MX')} para un cargo máximo de {item.authorization.currency} {item.authorization.maxMinorUnits} centavos.</p>}
         {item.authorization && item.reconciliation && !item.quote && <button type="button" onClick={createQuote} disabled={busy}>Crear cotización de Reap</button>}
         {item.quote && <><p>Cotización: {item.quote.status}{item.quote.snapshot && ` · total ${item.quote.snapshot.amount.currency} ${item.quote.snapshot.amount.minorUnits} centavos · vence ${new Date(item.quote.snapshot.expiresAt).toLocaleString('es-MX')}`}</p>
