@@ -1,0 +1,248 @@
+[
+  {
+    "title": "PO-DEMO-001 · Teclados para administración",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-TECLADO-001",
+          "quantity": 10,
+          "description": "Teclado USB de oficina — ficticio",
+          "unitPriceMinorUnits": "39900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "399000"
+      },
+      "issuedAt": "2026-10-01",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-001",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-001"
+    }
+  },
+  {
+    "title": "PO-DEMO-002 · Mouse para atención a clientes",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-MOUSE-002",
+          "quantity": 15,
+          "description": "Mouse óptico USB — ficticio",
+          "unitPriceMinorUnits": "24900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "373500"
+      },
+      "issuedAt": "2026-10-02",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-002",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-002"
+    }
+  },
+  {
+    "title": "PO-DEMO-003 · Diademas para soporte técnico",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-DIADEMA-003",
+          "quantity": 8,
+          "description": "Diadema con micrófono — ficticia",
+          "unitPriceMinorUnits": "64900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "519200"
+      },
+      "issuedAt": "2026-10-03",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-003",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-003"
+    }
+  },
+  {
+    "title": "PO-DEMO-004 · Cámaras para salas de juntas",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-WEBCAM-004",
+          "quantity": 6,
+          "description": "Cámara web Full HD — ficticia",
+          "unitPriceMinorUnits": "89900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "539400"
+      },
+      "issuedAt": "2026-10-04",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-004",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-004"
+    }
+  },
+  {
+    "title": "PO-DEMO-005 · Monitores para diseño",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-MONITOR-005",
+          "quantity": 4,
+          "description": "Monitor de 24 pulgadas — ficticio",
+          "unitPriceMinorUnits": "329900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "1319600"
+      },
+      "issuedAt": "2026-10-05",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-005",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-005"
+    }
+  },
+  {
+    "title": "PO-DEMO-006 · Hubs USB para operaciones",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-HUB-006",
+          "quantity": 12,
+          "description": "Hub USB de cuatro puertos — ficticio",
+          "unitPriceMinorUnits": "45900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "550800"
+      },
+      "issuedAt": "2026-10-06",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-006",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-006"
+    }
+  },
+  {
+    "title": "PO-DEMO-007 · Bocinas para capacitación",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-BOCINAS-007",
+          "quantity": 5,
+          "description": "Juego de bocinas de escritorio — ficticio",
+          "unitPriceMinorUnits": "57900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "289500"
+      },
+      "issuedAt": "2026-10-07",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-007",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-007"
+    }
+  },
+  {
+    "title": "PO-DEMO-008 · Fuentes de poder para mantenimiento",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-FUENTE-008",
+          "quantity": 3,
+          "description": "Fuente de poder de 600 W — ficticia",
+          "unitPriceMinorUnits": "119900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "359700"
+      },
+      "issuedAt": "2026-10-08",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-008",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-008"
+    }
+  },
+  {
+    "title": "PO-DEMO-009 · Cableado para nueva oficina",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-CABLE-009",
+          "quantity": 20,
+          "description": "Cable de red de 3 metros — ficticio",
+          "unitPriceMinorUnits": "12900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "258000"
+      },
+      "issuedAt": "2026-10-09",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-009",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-009"
+    }
+  },
+  {
+    "title": "PO-DEMO-010 · Kits de periféricos para nuevos ingresos",
+    "document": {
+      "kind": "PO",
+      "items": [
+        {
+          "sku": "DEMO-TECLADO-010",
+          "quantity": 5,
+          "description": "Teclado USB de oficina — ficticio",
+          "unitPriceMinorUnits": "39900"
+        },
+        {
+          "sku": "DEMO-MOUSE-010",
+          "quantity": 5,
+          "description": "Mouse óptico USB — ficticio",
+          "unitPriceMinorUnits": "24900"
+        }
+      ],
+      "total": {
+        "currency": "MXN",
+        "minorUnits": "324000"
+      },
+      "issuedAt": "2026-10-09",
+      "supplierId": "acteck",
+      "poReference": "PO-DEMO-010",
+      "supplierName": "Acteck",
+      "schemaVersion": "1",
+      "documentNumber": "PO-DEMO-010"
+    }
+  }
+]

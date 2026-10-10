@@ -27,6 +27,8 @@ docker compose exec web npm run db:seed:demo
 curl -fsS http://localhost:3000/api/health
 ```
 
+`db:seed:demo` prepara el aprobador y diez órdenes ficticias, de `PO-DEMO-001` a `PO-DEMO-010`, con proveedor Acteck, partidas e importes en MXN. Cada PO queda vinculada a un caso pendiente de factura. Los datos están en [fixtures/demo-purchase-orders.json](fixtures/demo-purchase-orders.json). Puedes repetir el comando: conserva las PO ya vinculadas sin duplicar casos ni reiniciar su estado.
+
 Abre `http://localhost:3000/login` con el correo y la contraseña elegidos. Compose publica la web en `127.0.0.1:3000`; `APP_BIND_ADDRESS` y `APP_PORT` permiten configurar la dirección y el puerto del host. El volumen `postgres_data` conserva documentos y decisiones al reiniciar. `docker compose down` detiene los servicios; `docker compose down -v` borra la base de datos. Las migraciones se aplican antes de iniciar web y worker.
 
 ### Si esta sesión no tiene acceso al socket Docker
