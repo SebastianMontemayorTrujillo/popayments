@@ -1,6 +1,6 @@
 # Tareas de implementación: PoPayments
 
-Estado: implementación en curso. Specs aprobadas el 2026-10-09. Los módulos principales tienen código y pruebas locales; esta lista aún requiere conciliar criterios y evidencia por tarea. La validación de Reap sandbox y el arranque Docker siguen pendientes. IDs estables T01–T45.
+Estado: implementación en curso. Specs aprobadas el 2026-10-09. Los módulos principales tienen código y pruebas locales; esta lista aún requiere conciliar criterios y evidencia por tarea. El arranque Docker está comprobado; la validación de Reap sandbox sigue pendiente. IDs estables T01–T45.
 
 ## Reglas de ejecución
 
@@ -77,7 +77,7 @@ Estado: implementación en curso. Specs aprobadas el 2026-10-09. Los módulos pr
 
 ### T04: PostgreSQL y runner de migraciones
 
-- [ ] Completada T04.
+- [x] Completada T04.
 
 **Descripción:** Habilitar una base persistente y migraciones reproducibles sin implementar todo el esquema de negocio.
 
@@ -85,10 +85,12 @@ Estado: implementación en curso. Specs aprobadas el 2026-10-09. Los módulos pr
 
 **Criterios de aceptación:**
 
-- [ ] Compose inicia PostgreSQL 17; conexión parametrizada y transacciones se cierran ante errores.
-- [ ] Runner registra migraciones aplicadas y detecta alteraciones; repetir migrate no duplica operaciones.
+- [x] Compose inicia PostgreSQL 17; conexión parametrizada y transacciones se cierran ante errores.
+- [x] Runner registra migraciones aplicadas y detecta alteraciones; repetir migrate no duplica operaciones.
 
 **Verificación:** `docker compose up -d db`; `npm run db:migrate` dos veces; comprobar persistencia tras reiniciar db.
+
+**Evidencia:** [Docker comprobado](../docs/verification/docker.md): PostgreSQL 17.11, 13 migraciones sin duplicados, checksum verificado por el runner y datos conservados después de `down` / `up`. La prueba de autorización existente verifica rollback ante fallos transaccionales.
 
 **Archivos previstos (5):** `compose.yaml`, `src/shared/database.ts`, `scripts/migrate.ts`, `db/migrations/0001-bootstrap.sql`, `package.json`.
 

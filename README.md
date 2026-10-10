@@ -27,7 +27,19 @@ docker compose exec web npm run db:seed:demo
 curl -fsS http://localhost:3000/api/health
 ```
 
-Abre `http://localhost:3000/login` con el correo y la contraseña elegidos. El volumen `postgres_data` conserva documentos y decisiones al reiniciar. `docker compose down` detiene los servicios; `docker compose down -v` borra la base de datos. Las migraciones se aplican antes de iniciar web y worker.
+Abre `http://localhost:3000/login` con el correo y la contraseña elegidos. Compose publica la web en `127.0.0.1:3000`; `APP_BIND_ADDRESS` y `APP_PORT` permiten configurar la dirección y el puerto del host. El volumen `postgres_data` conserva documentos y decisiones al reiniciar. `docker compose down` detiene los servicios; `docker compose down -v` borra la base de datos. Las migraciones se aplican antes de iniciar web y worker.
+
+### Si esta sesión no tiene acceso al socket Docker
+
+Si `getent group docker` incluye a tu usuario pero `id -nG` no muestra `docker`, el proceso conserva los grupos de una sesión anterior. En este equipo se comprobó que ejecutar el comando como el mismo usuario con `sudo` carga sus grupos actuales:
+
+```bash
+sudo -u seb docker info
+sudo -u seb docker compose up --build -d
+sudo -u seb docker compose ps
+```
+
+También puedes abrir una shell con los grupos actualizados mediante `sudo -u seb -H bash` y usar allí `docker` sin prefijo. Una terminal creada desde un proceso que conserva los grupos antiguos hereda esos mismos grupos. Para actualizar toda la sesión, cierra la sesión de escritorio o SSH y vuelve a entrar, como indica la [guía de Docker](https://docs.docker.com/engine/install/linux-postinstall/). El socket permanece `root:docker` con permisos `660`.
 
 Reap requiere `APP_BASE_URL` público con HTTPS para sus retornos alojados, además de `REAP_API_KEY`, `REAP_OWNER_ID`, `REAP_OWNER_EMAIL`, `REAP_ACTECK_WEBSITE` verificado por el equipo y `REAP_SHIPPING_ADDRESS_JSON`. Esta última variable contiene un objeto JSON con `firstName`, `lastName`, `phone` internacional, `addressLine1`, `city` y `country` de dos letras. La llave de equipo recibida caduca el 11 de octubre de 2026 a las 00:00 hora de Ciudad de México; después se necesita una nueva. La tarjeta existente se introduce solamente en la página alojada por Reap. `.env` está excluido de Git.
 
@@ -45,7 +57,7 @@ npm run test -- --run
 
 Para comprobar el recorrido web con un usuario ya sembrado, inicia `npm run start` y configura `E2E_EMAIL`, `E2E_PASSWORD` y, si usas un Chromium del sistema, `PLAYWRIGHT_CHROMIUM_PATH` antes de `npm run test:e2e`. La comprobación de un enrollment Reap existente es opt-in: `RUN_SANDBOX_TESTS=1 REAP_TEST_ENROLLMENT_ID=... npm run test:sandbox`, con la llave en el entorno. Esa prueba consulta un recurso; no crea enrollment ni checkout.
 
-Las pruebas de integración PostgreSQL se ejecutan si se configura `DATABASE_URL`; sin ella Vitest las omite. En este entorno se comprobaron el build de producción, el endpoint de salud, login y la suite con PostgreSQL local. Docker y Compose están instalados, pero esta sesión aún no heredó la membresía del grupo `docker`; Compose se validó estáticamente y el arranque real de contenedores queda por comprobar tras renovar la sesión.
+Las pruebas de integración PostgreSQL se ejecutan si se configura `DATABASE_URL`; sin ella Vitest las omite. Se comprobaron el build de producción y 24 pruebas con PostgreSQL local. El sandbox Docker también se construyó y arrancó: web y base saludables, worker activo, recorrido en Chromium aprobado y persistencia verificada tras recrear los contenedores. Consulta la [evidencia de Docker](docs/verification/docker.md). La integración real con Reap sigue pendiente de configuración externa.
 
 ## Especificación
 

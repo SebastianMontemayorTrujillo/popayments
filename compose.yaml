@@ -1,8 +1,8 @@
 name: popayments
 
 x-app: &app
-  build: .
   image: popayments:local
+  pull_policy: never
   env_file:
     - path: .env
       required: false
@@ -41,8 +41,9 @@ services:
 
   web:
     <<: *app
+    build: .
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3000}:3000"
     depends_on:
       migrate:
         condition: service_completed_successfully

@@ -1,6 +1,6 @@
 # Plan de implementación: PoPayments
 
-Estado: aprobado por el usuario. Implementación en curso desde el 2026-10-09. Runtime Docker, acceso, documentos, conciliación, autorización, evidencia AP2 de prueba, intención de pago Reap y coordinación OpenAI tienen código y pruebas locales. Faltan validación de sandbox real y arranque de contenedores en una sesión con acceso al daemon.
+Estado: aprobado por el usuario. Implementación en curso desde el 2026-10-09. Runtime Docker, acceso, documentos, conciliación, autorización, evidencia AP2 de prueba, intención de pago Reap y coordinación OpenAI tienen código y pruebas locales. El arranque Docker, el recorrido de documentos y la persistencia tras recrear contenedores están comprobados. Falta la validación de Reap y OpenAI con la configuración externa del equipo.
 
 ## Objetivo y alcance
 
